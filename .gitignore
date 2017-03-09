@@ -1,0 +1,5 @@
+node_modules/
+bower_components/
+test/reporters/
+.preview_tmp/
+.tmp/
