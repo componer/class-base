@@ -6,23 +6,7 @@ if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 module.exports = {
 	name: 'class-base',
 	type: 'bower',
-	build: [
-		{
-			from: 'src/class-base.js',
-			to: 'dist/class-base.js',
-			driver: 'webpack',
-			options: {
-				minify: true,
-				sourcemap: 'file',
-			},
-			settings: {
-				output: {
-					library: 'class-base',
-				},
-				externals: externals,
-			},
-		},
-	],
+	// build: [], // remove build task
 	preview: {
 		index: 'preview/index.html',
 		script: 'preview/class-base.js',
