@@ -23,6 +23,13 @@ describe('Class Base', () => {
             instance.set('data.name', 'new name')
             expect(flag).toBe(1)
         })
+
+        it('set trigger depth', () => {
+            let flag = 0
+            instance.on('change:data.name', () => flag = 1)
+            instance.set('data.name.readonly', true)
+            expect(flag).toBe(1)
+        })
     })
 
     describe('call', () => {

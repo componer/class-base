@@ -50,6 +50,7 @@ export default class ClassBase {
      * @param boolean notify: whether to trigger data change event
      */
     set(key, value, notify = true) {
+        if(!data[this]) data[this] = {}
         let target = data[this]
         if(key.indexOf('.') === -1) {
             target[key] = value
@@ -72,12 +73,14 @@ export default class ClassBase {
         }
         target[lastKey] = value
 
-
         if(notify) {
-            let node = nodes.shift()
-            // only the root data name change event will be trigger
-            // e.g. when you this.set('root.sub'), it will run this.trigger('change:root', value)
-            this.trigger('change:' + node, value)
+            nodes.push(lastKey)
+            let event = nodes.shift()
+            this.trigger('change:' + event, value)
+            while (nodes.length > 0) {
+                event += '.' + nodes.shift()
+                this.trigger('change:' + event, value)
+            }
         }
 
         return this
@@ -100,16 +103,21 @@ export default class ClassBase {
      * @param number order: the order to call function. functions are listed one by one with using order.
      */
     on(evts, handler, order = 10) {
+        if(!events[this]) events[this] = {}
         evts = evts.split(' ')
         let target = events[this]
+
         evts.forEach(evt => {
-            if(!target[evt]) target[evt] = {}
+            if(!target[evt]) {
+                target[evt] = {}
+            }
             let node = target[evt]
 
             if(!node[order]) node[order] = []
             let hdles = node[order]
             if(hdles.indexOf(handler) === -1) hdles.push(handler) // make sure only once in one order
         })
+
         return this
     }
     /**

@@ -1,6 +1,5 @@
 var bowerJson = require('./bower.json')
-var packageJson = require('./package.json')
-var deps = Object.keys(bowerJson.dependencies).concat(Object.keys(packageJson.dependencies))
+var deps = Object.keys(bowerJson.dependencies)
 var externals = {}
 if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
 

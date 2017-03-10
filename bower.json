@@ -3,11 +3,10 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "dist/js/class-base.js",
-        "dist/css/class-base.css"
+        "src/class-base.js"
     ],
     "moduleType": [
-        "umd"
+        "es6"
     ],
     "authors": [
         "componer"
@@ -15,7 +14,7 @@
     "homepage": "https://github.com/componer/class-base",
     "repository": {
         "type": "git",
-        "url": "git://github.com/componer/class-base.git"
+        "url": "https://github.com/componer/class-base.git"
     },
     "keywords": [],
     "dependencies": {},
@@ -25,6 +24,7 @@
         "bower_components",
         "preview/",
         "test/",
-        "componer.config.js"
+        "componer.config.js",
+        ".preview_tmp/"
     ]
 }
