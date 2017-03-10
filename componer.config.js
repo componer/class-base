@@ -1,8 +1,3 @@
-var bowerJson = require('./bower.json')
-var deps = Object.keys(bowerJson.dependencies)
-var externals = {}
-if(deps.length > 0) deps.forEach(dep => externals[dep] = dep)
-
 module.exports = {
 	name: 'class-base',
 	type: 'bower',
