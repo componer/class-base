@@ -1,13 +1,207 @@
 # Class Base
-
+The basic class for other class to extend.
+Provide useful properties.
 
 ## Install
 
+```
+componer clone class-base -L
+```
+
+`-L` is short for `--link`, class-base will be linked into bower_components, and you can use `import ClassBase from 'class-base'` directly.
+
 ## Usage
 
-## Options
+```
+import ClassBase from 'class-base'
+class MyClass extends ClassBase {
+    initialize(options) {} // use initialize instead of constructor
+}
+```
 
 ## Methods/API
+
+**initialize(...args)**
+
+The first property function to run automaticly. Use initialize instead of constructor.
+
+**get(key)**
+
+Get data from data manager.
+
+```
+var m = new ClassBase()
+...
+var name = m.get('name')
+```
+
+Instead of using `this.name`, you should use `this.get('name')` which is more security.
+
+However, you can use `this.get('book.name')` to get book name directly. It equals `this.get('book').name`.
+
+**set(key, value, notify = true)**
+
+Save data to data manager.
+
+```
+m.set('name', 'new name')
+m.set('book.amount', 100) // equals m.get('book').amount = 100
+```
+
+When you use set to save a new data, `change` event will be triggered. e.g.
+
+```
+m.on('change:name', name => console.log(name))
+m.set('name', 'my new name')
+```
+
+All of data set by `.set()` will follow this rule.
+If you do not want to trigger change event when you set a new data, use the third parameter.
+
+```
+m.set('name', 'a name', false)
+```
+
+Then, the `change:name` event will not be trigger.
+
+If you use `set('book.name', name)`, events `change:book` and `change:book.name` will be triggered together.
+
+**call(fun, ...args)**
+
+Call a function binded `this`.
+
+```
+function a() {
+    this.set('name', 'tom')
+}
+m.call(a)
+```
+
+Parameters follow the rule of `function.call`, for example:
+
+```
+function change(name) {
+    this.set('name', name)
+}
+m.call(change, 'tom cat')
+```
+
+**on(events, handler, order = 10)**
+
+Bind events on instance object. For example:
+
+```
+m.on('request', this.requestHandler)
+...
+m.request() // in which has a `this.trigger('request')`
+```
+
+In the previous example, when run `m.request()`, requestHandler will run at the trigger hook position.
+
+If you want to bind a handler to several events, use a space to seperate events. e.g.
+
+```
+m.on('change:name change:age', this.requestNew)
+```
+
+Notice: you do not need to use `this.requestNew.bind(this)`.
+
+If you want to arrange the handler order when triggered, you can pass the third parameter. e.g.
+
+```
+m.on('name', this.changeHandler, 30)
+m.on('name', this.changeHandler2, 20)
+```
+
+When `name` event triggered, changeHandler2 will be run before changeHandler, because the order of it is smaller. Default order is 10.
+
+**off(event, handler)**
+
+Remove a handler from event handler list. Only one event can be passed into off. If you do not pass handler, all handlers of this event will be removed. e.g.
+
+```
+m.off('book') // all event handlers will be removed
+m.off('book', this.changeHandler) // only changeHandler will be removed
+```
+
+If you pass a anonymous function into handler list when you bind, the only way to remove it is using `off(event)`, which will remove all handlers.
+
+Notice: `change:` events may be different.
+
+```
+m.off('change:book') // 'change:book.name' is still work
+m.off('change:book.name') // you should remove sub data event
+```
+
+**trigger(event, ...args)**
+
+Trigger event handlers. e.g.
+
+```
+m.on('finshed', this.finshedHanlder)
+...
+m.trigger('finshed')
+```
+
+Parameters can be passed by trigger, e.g.
+
+```
+function change(name, amount) {
+    console.log(name, amount)
+}
+m.on('book', change)
+...
+m.trigger('book', 'my new name', 89)
+```
+
+**static mixin(...Classes)**
+
+Provide a static mixin function to mix other classes into ChartBase. e.g.
+
+```
+var NewClass = BaseClass.mixin(ClassA, ClassB)
+var n = new NewClass()
+console.log(n.toString()) // BaseClass
+```
+
+NewClass has all properties of BaseClass, and some of ClassA and ClassB.
+
+**static mixto(...Classes)**
+
+Different from `mixin`, using mixto to put all properties into next class. The last class will keep all properties.
+
+```
+class ClassB {
+    toString() {
+        return 'ClassB'
+    }
+}
+var NewClass = BaseClass.mixto(ClassA, ClassB)
+var n = new NewClass()
+console.log(n.toString()) // ClassB
+```
+
+Notice: defference between mixin and mixto.
+
+mixin: from right into left, the left class will keep more properties. (cover the right one)
+
+mixto: from left into right, the right class will keep more properties.
+
+*Extends from mix*
+
+```
+class NewClass extends BaseClass.mixin(ClassA, ClassB) {}
+var n = new NewClass()
+console.log(n.toString()) // NewClass
+```
+
+**toString()**
+
+Find out the class info.
+
+```
+m.toString() // return '[class BaseClass]'
+```
 
 ## Generator
 
