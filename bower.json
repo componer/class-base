@@ -9,14 +9,16 @@
         "es6"
     ],
     "authors": [
-        "componer"
+        "tangshuang"
     ],
     "homepage": "https://github.com/componer/class-base",
     "repository": {
         "type": "git",
         "url": "https://github.com/componer/class-base.git"
     },
-    "keywords": [],
+    "keywords": [
+        "componer"
+    ],
     "dependencies": {},
     "devDependencies": {},
     "ignore": [

@@ -1,7 +1,6 @@
 var events = {}
 var data = {}
-
-function copyProperty(Target, Source) {
+var copyProperty = (Target, Source) => {
     for(let key of Reflect.ownKeys(Source)) {
         if(key !== 'constructor' && key !== 'prototype' && key !== 'name') {
             let descriptor = Object.getOwnPropertyDescriptor(Source, key)
@@ -170,7 +169,8 @@ export default class ClassBase {
 
         handlers.forEach(handler => {
             if(typeof handler === 'function') {
-                this.call(handler, ...args)
+                // this.call(handler, ...args) // will bind this
+                handler(...args) // will not bind this, use .bind(this) when on
             }
         })
 
@@ -209,6 +209,6 @@ export default class ClassBase {
     }
 
     toString() {
-        return `[class ${this.constructor.name}]`
+        return this.constructor.name
     }
 }

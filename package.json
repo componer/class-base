@@ -1,0 +1,20 @@
+{
+  "name": "class-base",
+  "version": "0.0.1",
+  "description": "class base for frontend, your env must support es6",
+  "main": "src/class-base.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "tangshuang",
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/componer/class-base.git"
+  },
+  "bugs": {
+    "url": "https://github.com/componer/class-base/issues"
+  },
+  "homepage": "https://github.com/componer/class-base#readme",
+  "license": "ISC"
+}

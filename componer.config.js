@@ -1,15 +1,12 @@
 module.exports = {
 	name: 'class-base',
-	type: 'bower',
-	// build: [], // remove build task
 	preview: {
 		index: 'preview/index.html',
 		script: 'preview/class-base.js',
 		watchFiles: [
 			'preview/index.html',
 			'preview/class-base.js',
-			'preview/class-base.scss',
-			'src/**/*',
+			'src/class-base.js',
 		],
 	},
 	test: {
