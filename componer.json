@@ -1,0 +1,31 @@
+{
+	"name": "class-base",
+	"version": "0.1.0",
+	"type": "component",
+	"build": {
+		"from": "src/class-base.js",
+		"to": "dist/class-base.js",
+		"options": {
+			"minify": true,
+			"sourcemap": true,
+			"vendors": false
+		}
+	},
+	"preview": {
+		"index": "preview/index.html",
+		"script": "preview/class-base.js",
+		"tmpdir": ".preview_tmp",
+		"vendors": false,
+		"watch": [
+			"preview/index.html",
+			"preview/class-base.js",
+			"src/class-base.js"
+		]
+	},
+	"test": {
+		"entry": "test/specs/class-base.js",
+		"reporters": "test/reporters",
+		"debug": false,
+		"browsers": ["PhantomJS"]
+	}
+}

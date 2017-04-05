@@ -22,11 +22,8 @@
     "dependencies": {},
     "devDependencies": {},
     "ignore": [
-        "node_modules",
-        "bower_components",
-        "preview/",
         "test/",
-        "componer.config.js",
-        ".preview_tmp/"
+        "preview/",
+        "componer.json"
     ]
 }
