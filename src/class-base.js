@@ -1,5 +1,5 @@
-var events = {}
-var data = {}
+var EventsManger = new WeakMap()
+var DataManager = new WeakMap()
 var copyProperty = (Target, Source) => {
     for(let key of Reflect.ownKeys(Source)) {
         if(key !== 'constructor' && key !== 'prototype' && key !== 'name') {
@@ -11,10 +11,9 @@ var copyProperty = (Target, Source) => {
 
 export default class ClassBase {
     constructor(...args) {
-        events[this] = {}
-        data[this] = {}
+        DataManager.set(this, {})
+        EventsManger.set(this, {})
         this.call(this.initialize, ...args)
-
         return this
     }
 
@@ -29,12 +28,19 @@ export default class ClassBase {
      * @param string key: the key of data, you can use '.' to get tree info. e.g. .get('root.sub.ClassBaseMix') => .get('root').sub.ClassBaseMix
      */
     get(key) {
-        let target = data[this]
-        if(key.indexOf('.') === -1) return target[key]
+        let data = DataManager.get(this)
 
-        let nodes = key.split('.').filter(item => item && item !== '')
-        if(nodes.length === 0) return
+        // without . in key
+        if(key.indexOf('.') === -1) return data[key]
 
+        // with . in key
+        let nodes = key.split('.').map(item => item.trim())
+
+        // but key is not available, like: 'a..c'
+        if(nodes.indexOf('')) return
+
+        // find out key->value
+        let target = data
         for(let node of nodes) {
             if(typeof target !== 'object' || !target[node]) return
             target = target[node]
@@ -49,37 +55,46 @@ export default class ClassBase {
      * @param boolean notify: whether to trigger data change event
      */
     set(key, value, notify = true) {
-        if(!data[this]) data[this] = {}
-        let target = data[this]
+        let data = DataManager.get(this)
+
+        // without . in key
         if(key.indexOf('.') === -1) {
-            target[key] = value
+            data[key] = value
             if(notify) {
                 this.trigger('change:' + key, value)
             }
             return this
         }
 
-        let nodes = key.split('.').filter(item => item && item !== '')
-        if(nodes.length === 0) return
+        // with . in key
+        let nodes = key.split('.').map(item => item.trim())
 
-        let lastKey = nodes.pop()
+        // but key is not available, like: 'a..c'
+        if(nodes.indexOf('')) return this
+
+        // find out the real key->value, and update it
+        let target = data
+        let targetKey = nodes.pop()
         for(let node of nodes) {
-            if(typeof target !== 'object') return
+            if(typeof target !== 'object') return this
             if(!target[node]) {
                 target[node] = {}
             }
             target = target[node]
         }
-        target[lastKey] = value
+        target[targetKey] = value
 
         if(notify) {
-            nodes.push(lastKey)
-            let event = nodes.shift()
-            this.trigger('change:' + event, value)
-            while (nodes.length > 0) {
-                event += '.' + nodes.shift()
-                this.trigger('change:' + event, value)
+            // bubbling up, notify parent node's events, from children to root
+            let evt = key
+            let follower = ''
+            this.trigger('change:' + evt, value)
+            while(evt.indexOf('.') > -1) {
+                follower = evt.substr(evt.lastIndexOf('.') + 1) + (follower === '' ? '' : '.') + follower
+                evt = evt.substr(0, evt.lastIndexOf('.'))
+                this.trigger('change:' + evt, [null, follower, value])
             }
+            this.trigger('change:' + evt, [null, follower, value])
         }
 
         return this
@@ -99,44 +114,51 @@ export default class ClassBase {
      * @desc bind events on Instantiate objects
      * @param string evts: events want to bind, use ' ' to split different events, e.g. .on('change:data change:name', ...)
      * @param function handler: function to call back when event triggered
-     * @param number order: the order to call function. functions are listed one by one with using order.
+     * @param number order: the order to call function. functions are listed one by one with using order. Notice, if you pass a same function twice with different order, it works.
      */
     on(evts, handler, order = 10) {
-        if(!events[this]) events[this] = {}
+        let events = EventsManger.get(this)
         evts = evts.split(' ')
-        let target = events[this]
-
         evts.forEach(evt => {
-            if(!target[evt]) {
-                target[evt] = {}
+            if(!events[evt]) {
+                events[evt] = {}
             }
-            let node = target[evt]
+            let node = events[evt]
 
-            if(!node[order]) node[order] = []
+            if(!node[order]) {
+                node[order] = []
+            }
             let hdles = node[order]
-            if(hdles.indexOf(handler) === -1) hdles.push(handler) // make sure only once in one order
+
+            // make sure only once in one order
+            if(hdles.indexOf(handler) === -1) {
+                hdles.push(handler)
+            }
         })
 
         return this
     }
     /**
      * @desc remove event handlers
-     * @param string event: event name, only one event supported
+     * @param string evt: event name, only one event supported
      * @param function handler: the function wanted to remove, notice: if you passed it twice, all of them will be removed. If you do not pass handler, all handlers of this event will be removed.
      */
-    off(event, handler) {
+    off(evt, handler) {
+        let events = EventsManger.get(this)
         if(!handler) {
-            events[this][event] = {}
+            events[evt] = {}
             return
         }
 
-        let node = events[this][event]
+        let node = events[evt]
         if(!node) return
 
         let orders = Object.keys(node)
 
         if(!orders || orders.length === 0) return
-        if(orders.length > 1) orders = orders.sort((a, b) => a - b)
+        if(orders.length > 1) {
+            orders = orders.sort((a, b) => a < b ? -1 : a > b ? 1 : 0)
+        }
 
         orders.forEach(order => {
             let hdles = node[order]
@@ -152,14 +174,17 @@ export default class ClassBase {
      * @param string event: which event to trigger
      * @param args: arguments to pass to handler function
      */
-    trigger(event, ...args) {
-        let node = events[this][event]
+    trigger(evt, ...args) {
+        let events = EventsManger.get(this)
+        let node = events[evt]
         if(!node) return
 
         let orders = Object.keys(node)
 
         if(!orders || orders.length === 0) return
-        if(orders.length > 1) orders = orders.sort((a, b) => a - b)
+        if(orders.length > 1) {
+            orders.sort((a, b) => a < b ? -1 : a > b ? 1 : 0)
+        }
 
         let handlers = []
         orders.forEach(order => {
@@ -169,8 +194,10 @@ export default class ClassBase {
 
         handlers.forEach(handler => {
             if(typeof handler === 'function') {
-                // this.call(handler, ...args) // will bind this
-                handler(...args) // will not bind this, use .bind(this) when on
+                handler.apply(this, args)
+            }
+            else if(typeof this[handler] === 'function') {
+                this[handler](...args)
             }
         })
 
