@@ -13,7 +13,7 @@ export default class ClassBase {
     constructor(...args) {
         DataManager.set(this, {})
         EventsManger.set(this, {})
-        this.call(this.initialize, ...args)
+        this.initialize.apply(this, args)
         return this
     }
 
@@ -37,10 +37,10 @@ export default class ClassBase {
         let nodes = key.split('.').map(item => item.trim())
 
         // but key is not available, like: 'a..c'
-        if(nodes.indexOf('')) return
+        if(nodes.indexOf('') !== -1) return
 
         // find out key->value
-        let target = data
+        let target = data = data || {}
         for(let node of nodes) {
             if(typeof target !== 'object' || !target[node]) return
             target = target[node]
@@ -60,6 +60,8 @@ export default class ClassBase {
         // without . in key
         if(key.indexOf('.') === -1) {
             data[key] = value
+            DataManager.set(this, data)
+
             if(notify) {
                 this.trigger('change:' + key, value)
             }
@@ -68,33 +70,35 @@ export default class ClassBase {
 
         // with . in key
         let nodes = key.split('.').map(item => item.trim())
-
         // but key is not available, like: 'a..c'
-        if(nodes.indexOf('')) return this
-
+        if(nodes.indexOf('') !== -1) return this
         // find out the real key->value, and update it
-        let target = data
+        let target = data = data || {}
+        let rootKey = nodes[0]
         let targetKey = nodes.pop()
         for(let node of nodes) {
-            if(typeof target !== 'object') return this
             if(!target[node]) {
                 target[node] = {}
             }
             target = target[node]
         }
         target[targetKey] = value
+        DataManager.set(this, data)
 
         if(notify) {
             // bubbling up, notify parent node's events, from children to root
             let evt = key
-            let follower = ''
-            this.trigger('change:' + evt, value)
-            while(evt.indexOf('.') > -1) {
-                follower = evt.substr(evt.lastIndexOf('.') + 1) + (follower === '' ? '' : '.') + follower
+            let followers = ''
+            while(evt !== '' && evt.length > 0) {
+                this.trigger('change:' + evt, {
+                    dataObject: data[rootKey],
+                    target: key,
+                    trigger: evt,
+                    value,
+                })
+                followers = evt.substr(evt.lastIndexOf('.') + 1) + (followers === '' ? '' : '.') + followers
                 evt = evt.substr(0, evt.lastIndexOf('.'))
-                this.trigger('change:' + evt, [null, follower, value])
             }
-            this.trigger('change:' + evt, [null, follower, value])
         }
 
         return this
@@ -135,6 +139,7 @@ export default class ClassBase {
                 hdles.push(handler)
             }
         })
+        EventsManger.set(this, events)
 
         return this
     }
@@ -167,6 +172,7 @@ export default class ClassBase {
             if(hdles.length === 0) delete node[order]
         })
 
+        EventsManger.set(this, events)
         return this
     }
     /**
@@ -197,7 +203,7 @@ export default class ClassBase {
                 handler.apply(this, args)
             }
             else if(typeof this[handler] === 'function') {
-                this[handler](...args)
+                this[handler].apply(this, args)
             }
         })
 
