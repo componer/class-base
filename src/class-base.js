@@ -94,7 +94,7 @@ export default class ClassBase {
                     dataObject: data[rootKey],
                     target: key,
                     trigger: evt,
-                    value,
+                    data: value,
                 })
                 followers = evt.substr(evt.lastIndexOf('.') + 1) + (followers === '' ? '' : '.') + followers
                 evt = evt.substr(0, evt.lastIndexOf('.'))
