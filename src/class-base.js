@@ -155,6 +155,12 @@ export default class ClassBase {
             return
         }
 
+        // delete all
+        if(!evt) {
+            EventsManger.set(this, {})
+            return thiss
+        }
+
         let node = events[evt]
         if(!node) return
 
@@ -241,6 +247,7 @@ export default class ClassBase {
         return ClassBaseMix
     }
 
+    // class name
     toString() {
         return this.constructor.name
     }
