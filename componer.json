@@ -12,18 +12,33 @@
 		}
 	},
 	"preview": {
-		"index": "preview/index.html",
-		"script": "preview/class-base.js",
-		"tmpdir": ".preview_tmp",
-		"vendors": false,
+		"dir": ".preview_tmp",
+		"script": {
+			"from": "src/script/{{componout-name}}.js",
+			"options": {
+				"minify": false,
+				"sourcemap": true,
+                "vendors": true
+			},
+			"settings": {}
+		},
+		"index": {
+			"from": "preview/index.html"
+		},
 		"watch": [
 			"preview/index.html",
-			"preview/class-base.js",
-			"src/class-base.js"
-		]
+			"preview/{{componout-name}}.js",
+			"preview/{{componout-name}}.scss",
+			"src/**/*.js",
+			"src/**/*.scss"
+		],
+		"server": "preview/server.js"
 	},
 	"test": {
-		"entry": "test/specs/class-base.js",
+		"entry": {
+			"from": "test/specs/{{componout-name}}.js",
+			"settings": {}
+		},
 		"reporters": "test/reporters",
 		"debug": false,
 		"browsers": ["PhantomJS"]
