@@ -104,7 +104,7 @@ describe('Class Base', () => {
 
             let NewClass = ClassBase.mixin(A, B)
             let a = new NewClass()
-            expect(a.toString()).toBe('[class ClassBaseMix]')
+            expect(a.toString()).toBe('MixClass')
         })
 
         it('mixto', () => {
@@ -128,7 +128,7 @@ describe('Class Base', () => {
             class G {}
             class NewClass extends ClassBase.mixin(F, G) {}
             let i = new NewClass()
-            expect(i.toString()).toBe('[class NewClass]')
+            expect(i.toString()).toBe('NewClass')
         })
     })
 })
