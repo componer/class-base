@@ -50,6 +50,14 @@ export default class DebounceManager {
     }
   }
   debounceFunction(factory, wait = 200, immediate = false) {
+    if(typeof factory === 'string') {
+      factory = this[factory]
+    }
+
+    if(typeof factory !== 'function') {
+      return
+    }
+    
     // cache, not build debounce function if the original function is in the queue
     let queue = this._$$debounceFunctions = this._$$debounceFunctions || {}
     let stone = queue[factory]
