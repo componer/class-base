@@ -1,20 +1,23 @@
-export default class EventsManger {
+import DebounceManager from './debounce'
+
+export default class EventsManger extends DebounceManager {
     /**
      * @desc bind events on Instantiate objects
      * @param string evts: events want to bind, use ' ' to split different events, e.g. .on('change:data change:name', ...)
      * @param function handler: function to call back when event triggered
      * @param number order: the order to call function. functions are listed one by one with using order. Notice, if you pass a same function twice with different order, it works.
+     * @param boolean debounce: whether run the handler function only once in a short time
      */
-    on(evts, handler, order = 10) {
+    on(evts, handler, order = 10, debounce = false) {
         let events = this._$$events = this._$$events || {}
-
+        let factory = debounce ? this.debounceFunction(handler) : handler
         evts = evts.split(' ')
         evts.forEach(evt => {
             let node = events[evt] = events[evt] || {}
             let hdles = node[order] = node[order] || []
             // make sure only once in one order
-            if(hdles.indexOf(handler) === -1) {
-                hdles.push(handler)
+            if(hdles.indexOf(factory) === -1) {
+                hdles.push(factory)
             }
         })
 

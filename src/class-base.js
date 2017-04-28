@@ -1,8 +1,9 @@
 import MixClass from './mix'
 import DataManager from './data'
 import EventsManger from './event'
+import DebounceManager from './debounce'
 
-export default class ClassBase extends MixClass.mixin(DataManager, EventsManger) {
+export default class ClassBase extends MixClass.mixin(DataManager, EventsManger, DebounceManager) {
     constructor(...args) {
         super()
         this.initialize.apply(this, args)
