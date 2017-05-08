@@ -3,7 +3,7 @@
     "description": "",
     "version": "0.0.1",
     "main": [
-        "src/class-base.js"
+        "src/index.js"
     ],
     "moduleType": [
         "es6"

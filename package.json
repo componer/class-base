@@ -2,7 +2,7 @@
   "name": "class-base",
   "version": "0.0.1",
   "description": "class base for frontend, your env must support es6",
-  "main": "src/class-base.js",
+  "main": "src/index.js",
   "scripts": {},
   "keywords": [],
   "author": "tangshuang",

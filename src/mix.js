@@ -13,30 +13,30 @@ export default class MixClass {
      * @param Classes: the classes passed to mix, previous class will NOT be overwrite by the behind ones.
      */
     static mixin(...Classes) {
-        class MixClass {}
+        class MixedClass {}
 
         Classes.reverse()
         Classes.push(this)
         Classes.forEach(Mixin => {
-            copyProperty(MixClass, Mixin)
-            copyProperty(MixClass.prototype, Mixin.prototype)
+            copyProperty(MixedClass, Mixin)
+            copyProperty(MixedClass.prototype, Mixin.prototype)
         })
 
-        return MixClass
+        return MixedClass
     }
 
     /**
      * @desc mix other classes into this class, property may be overwrite by passed class, behind class will cover previous class
      */
     static mixto(...Classes) {
-        class MixClass {}
+        class MixedClass {}
 
         Classes.unshift(this)
         for(let Mixin of Classes) {
-            copyProperty(MixClass, Mixin)
-            copyProperty(MixClass.prototype, Mixin.prototype)
+            copyProperty(MixedClass, Mixin)
+            copyProperty(MixedClass.prototype, Mixin.prototype)
         }
 
-        return MixClass
+        return MixedClass
     }
 }
